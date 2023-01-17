@@ -7,7 +7,7 @@
       @outcomeSort="outcomeSort"
       @fullList="fullList"
     />
-    <BudgetList :list="sortList" @deleteItem="onDeleteItem" />
+    <BudgetList :list="list" @deleteItem="onDeleteItem" />
   </div>
 </template>
 
@@ -32,8 +32,7 @@ export default {
     iconOutcome: 'el-icon-bottom',
     colorOutcome: '#F56C6C',
 
-    mainList: {},
-    sortList: {},
+    list: {},
   }),
   created: function () {
     this.fullList();
@@ -41,7 +40,7 @@ export default {
 
   computed: {
     totalBalance() {
-      return Object.values(this.mainList).reduce(
+      return Object.values(this.list).reduce(
         (acc, item) => acc + item.value,
         0
       );
@@ -52,15 +51,16 @@ export default {
     // с помощью оператора спред сразу выводим данные из usersList
 
     ...mapActions('finance', ['addNewFinanceItem']),
+    ...mapActions('finance', ['deleteNewFinanceItem']),
     // с помощью оператора спред сразу выводим данные из addNewUser
 
     fullList() {
-      this.mainList = this.financeList();
-      this.sortList = this.mainList;
+      this.list = this.financeList();
     },
 
     incomeSort() {
-      this.sortList = Object.values(this.mainList).reduce((acc, item) => {
+      this.fullList();
+      this.list = Object.values(this.list).reduce((acc, item) => {
         if (item.type === 'INCOME') {
           acc[item.id] = item;
         }
@@ -69,7 +69,8 @@ export default {
     },
 
     outcomeSort() {
-      this.sortList = Object.values(this.mainList).reduce((acc, item) => {
+      this.fullList();
+      this.list = Object.values(this.list).reduce((acc, item) => {
         if (item.type === 'OUTCOME') {
           acc[item.id] = item;
         }
@@ -83,11 +84,13 @@ export default {
         return;
       }
 
-      this.$delete(this.mainList, id);
+      this.deleteNewFinanceItem(id);
       this.fullList();
-      //этот метод принимает обьект из которого нужно удалить, вторым свойство которое нужно удалить, и вызовет перерендеринг
     },
+
     onFormSubmit(data) {
+      this.fullList();
+
       let { type, comment, value } = data;
       let icon = this.iconIncome;
       let color = this.colorIncome;
@@ -104,7 +107,7 @@ export default {
         color,
         comment,
         value,
-        id: Object.keys(this.mainList).length + 1,
+        id: Object.keys(this.list).length + 1,
       };
 
       this.addNewFinanceItem(newObj);

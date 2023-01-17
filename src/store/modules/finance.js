@@ -37,6 +37,10 @@ const financeStore = {
       Vue.set(state.list, financeItem.id, financeItem);
       // перезаписываем (реактивно) в state
     },
+    DELETE_FINANCE(state, id) {
+      Vue.delete(state.list, id);
+      //этот метод принимает обьект из которого нужно удалить, вторым свойство которое нужно удалить, и вызовет перерендеринг
+    },
   },
   actions: {
     // принимаем данные из компонента App
@@ -44,6 +48,11 @@ const financeStore = {
     addNewFinanceItem({ commit }, financeItem) {
       const newUser = { ...financeItem, id: financeItem.id };
       commit('ADD_FINANCE', newUser);
+      // commit() - фунция которая передает в mutations данные, для их изменения в state
+    },
+
+    deleteNewFinanceItem({ commit }, id) {
+      commit('DELETE_FINANCE', id);
       // commit() - фунция которая передает в mutations данные, для их изменения в state
     },
   },
